@@ -35,6 +35,43 @@ restaurante-mvc/
 | **cocina** | KDS, menú, inventario |
 | **cajero** | Dashboard, caja/facturación, cierre, mesas |
 
+## Capturas de pantalla
+
+### Ingreso
+![Login](docs/screenshots/login.png)
+
+### Dashboard administrativo
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Toma de pedidos (POS)
+![Selección de mesa](docs/screenshots/pos_index.png)
+![Comanda](docs/screenshots/pos_mesa.png)
+
+### Mesas
+![Mesas](docs/screenshots/mesas.png)
+
+### Cocina (KDS)
+![Cocina](docs/screenshots/cocina_kds.png)
+
+### Caja y facturación
+![Caja](docs/screenshots/caja_index.png)
+![Cobro](docs/screenshots/caja_cobrar.png)
+
+### Evidencia de ticket / impresora fiscal
+![Ticket fiscal](docs/screenshots/ticket_impresora_fiscal.png)
+
+### Menú / platillos
+![Menú](docs/screenshots/menu.png)
+
+### Inventario
+![Inventario](docs/screenshots/inventario.png)
+
+### Personal y usuarios
+![Personal](docs/screenshots/personal.png)
+
+### Reportes
+![Reportes](docs/screenshots/reportes.png)
+
 ## Puesta en marcha
 
 ```powershell
