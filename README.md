@@ -35,6 +35,12 @@ restaurante-mvc/
 | **cocina** | KDS, menú, inventario |
 | **cajero** | Dashboard, caja/facturación, cierre, mesas |
 
+## Documentación técnica
+
+📄 [Documentacion_Tecnica_La_Sobremesa.pdf](docs/Documentacion_Tecnica_La_Sobremesa.pdf) — explica la
+arquitectura MVC, la lógica de negocio de cada módulo, el modelo de base de datos (tablas, campos y
+relaciones) y las credenciales de desarrollo/demo.
+
 ## Capturas de pantalla
 
 ### Ingreso
