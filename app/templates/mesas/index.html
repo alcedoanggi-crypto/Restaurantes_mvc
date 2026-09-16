@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Mesas{% endblock %}
+{% block heading %}Gestión de mesas{% endblock %}
+{% block content %}
+<div class="row g-3 mb-4">
+  {% for mesa in mesas %}
+  <div class="col-6 col-md-3 col-lg-2">
+    <div class="mesa-tile mesa-{{ mesa.estado }}">
+      <span class="num">{{ mesa.numero }}</span>
+      <span class="small text-uppercase">{{ mesa.estado }}</span>
+      <form method="post" action="{{ url_for('mesas.cambiar_estado', mesa_id=mesa.id) }}" class="mt-1">
+        <select name="estado" class="form-select form-select-sm" onchange="this.form.submit()">
+          {% for e in estados %}
+          <option value="{{ e }}" {{ 'selected' if e == mesa.estado }}>{{ e }}</option>
+          {% endfor %}
+        </select>
+      </form>
+      {% if mesa.pedido_activo %}
+      <a class="small text-white text-decoration-underline" href="{{ url_for('pos.mesa', mesa_id=mesa.id) }}">Pedido #{{ mesa.pedido_activo.id }}</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if current_user.rol == ROL_ADMIN %}
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card p-3">
+      <h5>Nueva mesa</h5>
+      <form method="post" action="{{ url_for('mesas.crear') }}" class="row g-2">
+        <div class="col-6"><input name="numero" type="number" class="form-control" placeholder="Número" required></div>
+        <div class="col-6"><input name="capacidad" type="number" class="form-control" placeholder="Capacidad" value="4"></div>
+        <div class="col-12"><input name="ubicacion" class="form-control" placeholder="Ubicación" value="Salón"></div>
+        <div class="col-12"><button class="btn btn-tomate w-100">Agregar mesa</button></div>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card p-3">
+      <h5>Mesas registradas</h5>
+      <table class="table align-middle">
+        <thead><tr><th>#</th><th>Capacidad</th><th>Ubicación</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+        {% for mesa in mesas %}
+        <tr>
+          <form method="post" action="{{ url_for('mesas.editar', mesa_id=mesa.id) }}">
+            <td class="fw-bold">{{ mesa.numero }}</td>
+            <td style="width:90px"><input name="capacidad" type="number" class="form-control form-control-sm" value="{{ mesa.capacidad }}"></td>
+            <td><input name="ubicacion" class="form-control form-control-sm" value="{{ mesa.ubicacion }}"></td>
+            <td><span class="badge text-bg-{{ mesa.color }}">{{ mesa.estado }}</span></td>
+            <td class="text-nowrap">
+              <button class="btn btn-sm btn-outline-secondary">Guardar</button>
+          </form>
+              <form method="post" action="{{ url_for('mesas.eliminar', mesa_id=mesa.id) }}" class="d-inline" onsubmit="return confirm('¿Eliminar mesa?')">
+                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>setInterval(() => location.reload(), 20000);</script>
+{% endblock %}

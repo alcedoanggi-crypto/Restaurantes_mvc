@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Caja{% endblock %}
+{% block heading %}Caja y facturación{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card p-3">
+      <h5>Pedidos por cobrar</h5>
+      <table class="table align-middle">
+        <thead><tr><th>Pedido</th><th>Mesa</th><th>Mesero</th><th>Items</th><th>Subtotal</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+        {% for p in pendientes %}
+        <tr>
+          <td>#{{ p.id }}</td>
+          <td>{{ p.mesa.numero }}</td>
+          <td>{{ p.mesero.nombre }}</td>
+          <td>{{ p.total_items }}</td>
+          <td class="fw-bold">{{ p.subtotal | money }}</td>
+          <td><span class="badge text-bg-light">{{ p.estado_label }}</span></td>
+          <td><a href="{{ url_for('caja.cobrar', pedido_id=p.id) }}" class="btn btn-sm btn-tomate">Cobrar</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-muted text-center py-4">No hay pedidos pendientes de cobro.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card p-3">
+      <h5 class="d-flex justify-content-between">Corte de hoy
+        <a href="{{ url_for('caja.cierre') }}" class="btn btn-sm btn-outline-dark">Ver cierre</a></h5>
+      <ul class="list-group list-group-flush">
+        {% for metodo, v in resumen.por_metodo.items() %}
+        <li class="list-group-item d-flex justify-content-between px-0">
+          <span class="text-capitalize">{{ metodo }} <span class="text-muted">({{ v.count }})</span></span>
+          <span class="fw-semibold">{{ v.total | money }}</span>
+        </li>
+        {% endfor %}
+        <li class="list-group-item d-flex justify-content-between px-0 fs-5 fw-bold">
+          <span>Total ({{ resumen.num_tickets }})</span><span class="text-tomate">{{ resumen.total | money }}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

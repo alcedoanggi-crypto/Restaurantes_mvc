@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Cobrar pedido #{{ pedido.id }}{% endblock %}
+{% block heading %}Cobrar pedido #{{ pedido.id }} · Mesa {{ pedido.mesa.numero }}{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card p-3">
+      <h5>Detalle</h5>
+      <table class="table">
+        <tbody>
+        {% for d in pedido.detalles %}
+        <tr><td>{{ d.cantidad }}× {{ d.platillo.nombre }}</td><td class="text-end">{{ d.importe | money }}</td></tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr><th>Subtotal</th><th class="text-end">{{ subtotal | money }}</th></tr>
+          <tr><td>IVA ({{ (iva * 100) | int }}%)</td><td class="text-end">{{ impuesto | money }}</td></tr>
+          <tr class="fs-5"><th>Total</th><th class="text-end text-tomate">{{ total | money }}</th></tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card p-3">
+      <h5>Pago</h5>
+      <form method="post">
+        <label class="form-label">Método de pago</label>
+        <select name="metodo_pago" id="metodo" class="form-select mb-3">
+          {% for m in metodos %}<option value="{{ m }}" class="text-capitalize">{{ m }}</option>{% endfor %}
+        </select>
+        <label class="form-label">Pago recibido</label>
+        <input name="pago_recibido" id="recibido" type="number" step="0.01" class="form-control form-control-lg mb-2" value="{{ total }}">
+        <div class="d-flex justify-content-between fs-5">
+          <span>Cambio</span><span id="cambio" class="fw-bold">$0.00</span>
+        </div>
+        <button class="btn btn-tomate btn-pos w-100 mt-3"><i class="bi bi-check-lg"></i> Registrar cobro</button>
+        <a href="{{ url_for('caja.index') }}" class="btn btn-link w-100">Cancelar</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const TOTAL = {{ total }};
+const rec = document.getElementById('recibido'), camb = document.getElementById('cambio');
+function calc(){ const c = (parseFloat(rec.value)||0) - TOTAL; camb.textContent = '$' + (c>0?c:0).toFixed(2); }
+rec.addEventListener('input', calc); calc();
+</script>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Inventario{% endblock %}
+{% block heading %}Inventario de insumos{% endblock %}
+{% block content %}
+{% set editable = current_user.rol == ROL_ADMIN %}
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3"><div class="kpi-card kpi-carbon"><div class="kpi-label">Valor inventario</div><div class="kpi-value">{{ valor_total | money }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="kpi-card kpi-tomate"><div class="kpi-label">Insumos bajo mínimo</div><div class="kpi-value">{{ bajos | length }}</div></div></div>
+</div>
+
+{% if bajos %}
+<div class="alert alert-warning"><i class="bi bi-exclamation-triangle"></i>
+  Reponer: {{ bajos | map(attribute='nombre') | join(', ') }}
+</div>
+{% endif %}
+
+<div class="card p-3">
+  <div class="d-flex justify-content-between">
+    <h5>Insumos</h5>
+    {% if editable %}<button class="btn btn-sm btn-tomate" data-bs-toggle="modal" data-bs-target="#modalInsumo" onclick="nuevo()">+ Insumo</button>{% endif %}
+  </div>
+  <table class="table align-middle">
+    <thead><tr><th>Nombre</th><th>Stock</th><th>Mínimo</th><th>Costo u.</th><th>Valor</th><th>Ajuste rápido</th>{% if editable %}<th></th>{% endif %}</tr></thead>
+    <tbody>
+    {% for i in insumos %}
+    <tr class="{{ 'table-warning' if i.bajo_stock }}">
+      <td class="fw-semibold">{{ i.nombre }}</td>
+      <td>{{ i.stock_actual }} {{ i.unidad }}</td>
+      <td>{{ i.stock_minimo }}</td>
+      <td>{{ i.costo_unitario | money }}</td>
+      <td>{{ i.valor_inventario | money }}</td>
+      <td>
+        <form method="post" action="{{ url_for('inventario.ajustar', iid=i.id) }}" class="d-flex gap-1">
+          <input name="delta" type="number" step="0.01" class="form-control form-control-sm" style="width:90px" placeholder="+/-">
+          <button class="btn btn-sm btn-outline-dark">Aplicar</button>
+        </form>
+      </td>
+      {% if editable %}
+      <td class="text-nowrap">
+        <button class="btn btn-sm btn-outline-dark" onclick='editar({{ i.id }}, {{ i.nombre|tojson }}, {{ i.unidad|tojson }}, {{ i.stock_actual|string|tojson }}, {{ i.stock_minimo|string|tojson }}, {{ i.costo_unitario|string|tojson }})'><i class="bi bi-pencil"></i></button>
+        <form method="post" action="{{ url_for('inventario.eliminar', iid=i.id) }}" class="d-inline" onsubmit="return confirm('¿Eliminar?')"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
+      </td>
+      {% endif %}
+    </tr>
+    {% else %}<tr><td colspan="7" class="text-center text-muted py-4">Sin insumos registrados.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if editable %}
+<div class="modal fade" id="modalInsumo"><div class="modal-dialog"><div class="modal-content">
+  <form method="post" action="{{ url_for('inventario.guardar') }}">
+    <input type="hidden" name="id" id="i_id">
+    <div class="modal-header"><h5 class="modal-title" id="i_title">Insumo</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input name="nombre" id="i_nombre" class="form-control mb-2" placeholder="Nombre" required>
+      <div class="row g-2">
+        <div class="col"><input name="unidad" id="i_unidad" class="form-control mb-2" placeholder="Unidad (kg, lt, pza)" value="pza"></div>
+        <div class="col"><input name="costo_unitario" id="i_costo" type="number" step="0.01" class="form-control mb-2" placeholder="Costo unitario"></div>
+      </div>
+      <div class="row g-2">
+        <div class="col"><input name="stock_actual" id="i_stock" type="number" step="0.01" class="form-control" placeholder="Stock actual"></div>
+        <div class="col"><input name="stock_minimo" id="i_min" type="number" step="0.01" class="form-control" placeholder="Stock mínimo"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-tomate">Guardar</button></div>
+  </form>
+</div></div></div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+function nuevo(){ i_id.value=''; i_title.textContent='Nuevo insumo'; i_nombre.value=''; i_unidad.value='pza'; i_costo.value=''; i_stock.value=''; i_min.value=''; }
+function editar(id, n, u, s, m, c){
+  new bootstrap.Modal('#modalInsumo').show();
+  i_id.value=id; i_title.textContent='Editar insumo';
+  i_nombre.value=n; i_unidad.value=u; i_stock.value=s; i_min.value=m; i_costo.value=c;
+}
+</script>
+{% endblock %}

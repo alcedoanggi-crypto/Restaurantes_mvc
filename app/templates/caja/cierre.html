@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Cierre de caja{% endblock %}
+{% block heading %}Cierre de caja · {{ r.fecha.strftime('%d/%m/%Y') }}{% endblock %}
+{% block content %}
+<form class="row g-2 mb-3" method="get">
+  <div class="col-auto"><input type="date" name="fecha" value="{{ r.fecha.isoformat() }}" class="form-control"></div>
+  <div class="col-auto"><button class="btn btn-tomate">Consultar</button></div>
+</form>
+
+<div class="row g-3 mb-3">
+  {% for metodo, v in r.por_metodo.items() %}
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card kpi-naranja">
+      <div class="kpi-label text-capitalize">{{ metodo }}</div>
+      <div class="kpi-value">{{ v.total | money }}</div>
+      <div class="small opacity-75">{{ v.count }} tickets</div>
+    </div>
+  </div>
+  {% endfor %}
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card kpi-tomate">
+      <div class="kpi-label">Total del día</div>
+      <div class="kpi-value">{{ r.total | money }}</div>
+      <div class="small opacity-75">{{ r.num_tickets }} tickets · IVA {{ r.impuesto | money }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="card p-3">
+  <h5>Facturas</h5>
+  <table class="table align-middle">
+    <thead><tr><th>Folio</th><th>Hora</th><th>Mesa</th><th>Cajero</th><th>Método</th><th class="text-end">Total</th></tr></thead>
+    <tbody>
+    {% for f in r.facturas %}
+    <tr>
+      <td><a href="{{ url_for('caja.ticket', factura_id=f.id) }}">{{ f.folio }}</a></td>
+      <td>{{ f.creado_en.strftime('%H:%M') }}</td>
+      <td>{{ f.pedido.mesa.numero }}</td>
+      <td>{{ f.cajero.nombre }}</td>
+      <td class="text-capitalize">{{ f.metodo_pago }}</td>
+      <td class="text-end fw-semibold">{{ f.total | money }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="text-center text-muted py-4">Sin ventas en la fecha seleccionada.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

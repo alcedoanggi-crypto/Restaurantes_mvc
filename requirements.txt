@@ -1,0 +1,10 @@
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Flask-Migrate==4.0.7
+python-dotenv==1.0.1
+Werkzeug==3.0.3
+
+# Driver PostgreSQL (psycopg v3; trae binarios, no requiere compilador).
+# Con SQLite puedes omitirlo sin problema.
+psycopg[binary]==3.2.3

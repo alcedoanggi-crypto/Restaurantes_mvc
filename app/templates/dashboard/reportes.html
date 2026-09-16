@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Reportes{% endblock %}
+{% block heading %}Reportes de ventas{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-6"><div class="card p-3"><h5>Top 10 platillos</h5><canvas id="c1" height="160"></canvas></div></div>
+  <div class="col-lg-6"><div class="card p-3"><h5>Ventas últimos 30 días</h5><canvas id="c2" height="160"></canvas></div></div>
+  <div class="col-12"><div class="card p-3"><h5>Ventas por mes (12 meses)</h5><canvas id="c3" height="70"></canvas></div></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const TOP = {{ top | tojson }}, DIA = {{ dia | tojson }}, MES = {{ mes | tojson }};
+new Chart(c1, { type:'bar', data:{ labels:TOP.labels, datasets:[{ data:TOP.data, backgroundColor:'#EA580C', borderRadius:6 }] }, options:{ indexAxis:'y', plugins:{legend:{display:false}} }});
+new Chart(c2, { type:'line', data:{ labels:DIA.labels, datasets:[{ data:DIA.data, borderColor:'#DC2626', backgroundColor:'rgba(220,38,38,.12)', fill:true, tension:.3 }] }, options:{ plugins:{legend:{display:false}} }});
+new Chart(c3, { type:'bar', data:{ labels:MES.labels, datasets:[{ data:MES.data, backgroundColor:'#1C1917', borderRadius:6 }] }, options:{ plugins:{legend:{display:false}} }});
+</script>
+{% endblock %}

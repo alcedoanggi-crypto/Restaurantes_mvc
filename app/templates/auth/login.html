@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Ingreso{% endblock %}
+{% block guest %}
+<div class="login-wrap">
+  <div class="login-bg"></div>
+  <div class="login-card">
+    <div class="text-center mb-4">
+      <div class="display-6"><i class="bi bi-egg-fried"></i></div>
+      <h1 class="mb-1">La Sobremesa</h1>
+      <p class="mb-0 small opacity-75">Sistema de gestión · Pedidos y Cocina</p>
+    </div>
+    <form method="post">
+      <div class="mb-3">
+        <label class="form-label small">Usuario o correo</label>
+        <input name="username" class="form-control form-control-lg" placeholder="admin" autofocus required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Contraseña</label>
+        <input type="password" name="password" class="form-control form-control-lg" placeholder="••••••••" required>
+      </div>
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" name="remember" id="remember">
+        <label class="form-check-label small" for="remember">Recordarme en este dispositivo</label>
+      </div>
+      <button class="btn btn-entrar btn-lg w-100">Entrar <i class="bi bi-arrow-right-short"></i></button>
+    </form>
+    <div class="mt-4 small opacity-75 text-center">
+      Demo: <code class="text-white">admin / admin123</code> · mesero / mesero123 · cocina / cocina123 · cajero / cajero123
+    </div>
+  </div>
+</div>
+{% endblock %}

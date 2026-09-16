@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Cocina KDS{% endblock %}
+{% block heading %}Pantalla de cocina (KDS){% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="text-muted small"><span class="badge text-bg-success">verde &lt; {{ config.KDS_WARN_MIN }}m</span>
+    <span class="badge text-bg-warning">amarillo &lt; {{ config.KDS_LATE_MIN }}m</span>
+    <span class="badge text-bg-danger">rojo tardío</span></div>
+  <span class="small text-muted" id="reloj"></span>
+</div>
+<div class="kds-board" id="board">
+  {% include 'cocina/_tickets.html' %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+window.CAN_EDIT = {{ 'true' if current_user.rol in [ROL_ADMIN, ROL_COCINA] else 'false' }};
+window.FEED_URL = "{{ url_for('api.cocina_feed') }}";
+window.AVANZAR_URL = "{{ url_for('cocina.avanzar', detalle_id=0) }}";
+window.LISTO_URL = "{{ url_for('cocina.marcar_pedido_listo', pedido_id=0) }}";
+</script>
+<script src="{{ url_for('static', filename='js/kds.js') }}"></script>
+{% endblock %}

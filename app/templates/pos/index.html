@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Toma de pedidos{% endblock %}
+{% block heading %}Toma de pedidos — selecciona una mesa{% endblock %}
+{% block content %}
+<div class="d-flex gap-2 mb-3 flex-wrap" id="resumen"></div>
+<div class="row g-3" id="grid-mesas">
+  {% for mesa in mesas %}
+  <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+    <a href="{{ url_for('pos.mesa', mesa_id=mesa.id) }}" class="mesa-tile mesa-{{ mesa.estado }}">
+      <span class="num">{{ mesa.numero }}</span>
+      <span class="small text-uppercase">{{ mesa.estado }}</span>
+      <span class="small">{{ mesa.ubicacion }} · {{ mesa.capacidad }}p</span>
+      {% if mesa.pedido_activo %}<span class="small fw-bold">{{ mesa.pedido_activo.subtotal | money }}</span>{% endif %}
+    </a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function refrescar(){
+  try{
+    const d = await (await fetch("{{ url_for('api.mesas_feed') }}")).json();
+    document.getElementById('resumen').innerHTML =
+      `<span class="badge text-bg-success p-2">Libres: ${d.resumen.libre}</span>
+       <span class="badge text-bg-danger p-2">Ocupadas: ${d.resumen.ocupada}</span>
+       <span class="badge text-bg-warning p-2">Reservadas: ${d.resumen.reservada}</span>`;
+  }catch(e){}
+}
+refrescar(); setInterval(refrescar, 7000);
+</script>
+{% endblock %}

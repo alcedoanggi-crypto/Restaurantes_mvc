@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block heading %}Panel administrativo{% endblock %}
+{% block content %}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card kpi-tomate">
+      <div class="kpi-label">Ventas del día</div>
+      <div class="kpi-value">{{ kpis.ventas_hoy | money }}</div>
+      <i class="bi bi-cash-stack bg-icon"></i>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card kpi-naranja">
+      <div class="kpi-label">Tickets hoy</div>
+      <div class="kpi-value">{{ kpis.num_tickets }}</div>
+      <div class="small opacity-75">Prom. {{ kpis.ticket_promedio | money }}</div>
+      <i class="bi bi-receipt bg-icon"></i>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card kpi-carbon">
+      <div class="kpi-label">Mesa más rentable</div>
+      <div class="kpi-value">
+        {% if kpis.mesa_mas_rentable %}Mesa {{ kpis.mesa_mas_rentable.numero }}{% else %}—{% endif %}
+      </div>
+      <div class="small opacity-75">
+        {% if kpis.mesa_mas_rentable %}{{ kpis.mesa_mas_rentable.total | money }} histórico{% endif %}
+      </div>
+      <i class="bi bi-trophy bg-icon"></i>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card kpi-verde">
+      <div class="kpi-label">Platillo estrella</div>
+      <div class="kpi-value" style="font-size:1.25rem">
+        {% if kpis.platillo_estrella %}{{ kpis.platillo_estrella.nombre }}{% else %}—{% endif %}
+      </div>
+      <div class="small opacity-75">
+        {% if kpis.platillo_estrella %}{{ kpis.platillo_estrella.unidades }} vendidos{% endif %}
+      </div>
+      <i class="bi bi-star-fill bg-icon"></i>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card p-3 h-100">
+      <h5 class="mb-3">Ventas diarias <span class="text-muted small">(últimos 14 días)</span></h5>
+      <canvas id="chartVentasDia" height="110"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card p-3 h-100">
+      <h5 class="mb-3">Ocupación de mesas</h5>
+      <canvas id="chartOcupacion" height="180"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card p-3 h-100">
+      <h5 class="mb-3">Platillos más vendidos</h5>
+      <canvas id="chartTop" height="150"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card p-3 h-100">
+      <h5 class="mb-3">Ventas mensuales</h5>
+      <canvas id="chartVentasMes" height="150"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>window.CHARTS_URL = "{{ url_for('api.dashboard_charts') }}";</script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

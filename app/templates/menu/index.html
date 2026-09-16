@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}Menú{% endblock %}
+{% block heading %}Gestión de menú{% endblock %}
+{% block content %}
+{% set editable = current_user.rol == ROL_ADMIN %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <p class="text-muted mb-0">{{ categorias | map(attribute='platillos') | map('length') | sum }} platillos en {{ categorias | length }} categorías</p>
+  {% if editable %}
+  <div>
+    <button class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#modalCategoria">+ Categoría</button>
+    <button class="btn btn-tomate btn-sm" data-bs-toggle="modal" data-bs-target="#modalPlatillo" onclick="nuevoPlatillo()">+ Platillo</button>
+  </div>
+  {% endif %}
+</div>
+
+{% for c in categorias %}
+<div class="card p-3 mb-3">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0">{{ c.nombre }} <span class="text-muted small">{{ c.descripcion or '' }}</span></h5>
+    {% if editable %}
+    <form method="post" action="{{ url_for('menu.eliminar_categoria', cat_id=c.id) }}" onsubmit="return confirm('¿Eliminar categoría?')">
+      <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+    </form>
+    {% endif %}
+  </div>
+  <div class="row g-2">
+    {% for p in c.platillos %}
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="platillo-card h-100 {{ 'agotado' if not p.disponible }}">
+        <div class="img" style="background-image:url('{{ p.imagen }}')"></div>
+        <div class="body">
+          <div class="fw-semibold small">{{ p.nombre }}</div>
+          <div class="precio">{{ p.precio | money }}</div>
+          <div class="small text-muted">{{ p.tiempo_preparacion }} min</div>
+          <div class="mt-1 d-flex gap-1">
+            <form method="post" action="{{ url_for('menu.toggle_disponible', pid=p.id) }}">
+              <button class="btn btn-sm {{ 'btn-outline-success' if p.disponible else 'btn-outline-secondary' }}">
+                {{ 'Disponible' if p.disponible else 'Agotado' }}
+              </button>
+            </form>
+            {% if editable %}
+            <button class="btn btn-sm btn-outline-dark" onclick='editarPlatillo({{ p.id }}, {{ p.nombre|tojson }}, {{ (p.descripcion or "")|tojson }}, {{ p.precio|string|tojson }}, {{ p.categoria_id }}, {{ (p.imagen_url or "")|tojson }}, {{ p.tiempo_preparacion }}, {{ p.disponible|tojson }})'><i class="bi bi-pencil"></i></button>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}<p class="text-muted small">Sin platillos.</p>{% endfor %}
+  </div>
+</div>
+{% endfor %}
+
+{% if editable %}
+<!-- Modal categoría -->
+<div class="modal fade" id="modalCategoria"><div class="modal-dialog"><div class="modal-content">
+  <form method="post" action="{{ url_for('menu.crear_categoria') }}">
+    <div class="modal-header"><h5 class="modal-title">Nueva categoría</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input name="nombre" class="form-control mb-2" placeholder="Nombre" required>
+      <input name="descripcion" class="form-control mb-2" placeholder="Descripción">
+      <input name="orden" type="number" class="form-control" placeholder="Orden" value="0">
+    </div>
+    <div class="modal-footer"><button class="btn btn-tomate">Guardar</button></div>
+  </form>
+</div></div></div>
+
+<!-- Modal platillo -->
+<div class="modal fade" id="modalPlatillo"><div class="modal-dialog"><div class="modal-content">
+  <form method="post" action="{{ url_for('menu.guardar_platillo') }}">
+    <input type="hidden" name="id" id="p_id">
+    <div class="modal-header"><h5 class="modal-title" id="p_title">Platillo</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input name="nombre" id="p_nombre" class="form-control mb-2" placeholder="Nombre" required>
+      <textarea name="descripcion" id="p_desc" class="form-control mb-2" placeholder="Descripción"></textarea>
+      <div class="row g-2 mb-2">
+        <div class="col"><input name="precio" id="p_precio" type="number" step="0.01" class="form-control" placeholder="Precio" required></div>
+        <div class="col"><input name="tiempo_preparacion" id="p_tiempo" type="number" class="form-control" placeholder="Min prep" value="10"></div>
+      </div>
+      <select name="categoria_id" id="p_cat" class="form-select mb-2" required>
+        {% for c in categorias %}<option value="{{ c.id }}">{{ c.nombre }}</option>{% endfor %}
+      </select>
+      <input name="imagen_url" id="p_img" class="form-control mb-2" placeholder="URL de imagen (opcional)">
+      <div class="form-check"><input class="form-check-input" type="checkbox" name="disponible" id="p_disp" checked><label class="form-check-label">Disponible</label></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-tomate">Guardar</button></div>
+  </form>
+</div></div></div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+function nuevoPlatillo(){
+  p_id.value=''; p_title.textContent='Nuevo platillo';
+  p_nombre.value=''; p_desc.value=''; p_precio.value=''; p_tiempo.value=10; p_img.value=''; p_disp.checked=true;
+}
+function editarPlatillo(id, nombre, desc, precio, cat, img, tiempo, disp){
+  new bootstrap.Modal('#modalPlatillo').show();
+  p_id.value=id; p_title.textContent='Editar platillo';
+  p_nombre.value=nombre; p_desc.value=desc; p_precio.value=precio; p_cat.value=cat;
+  p_img.value=img; p_tiempo.value=tiempo; p_disp.checked=disp;
+}
+</script>
+{% endblock %}

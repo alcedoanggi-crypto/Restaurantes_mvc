@@ -1,0 +1,39 @@
+{% for t in tickets %}
+<div class="kds-card {{ t.nivel }}">
+  <div class="kds-head">
+    <span class="mesa">Mesa {{ t.pedido.mesa.numero }}</span>
+    <span class="small">#{{ t.pedido.id }} · {{ t.espera }} min</span>
+  </div>
+  <div>
+    {% for d in t.renglones %}
+    <div class="kds-item estado-{{ d.estado }}">
+      <div>
+        <span class="qty">{{ d.cantidad }}</span> {{ d.platillo.nombre }}
+        {% if d.notas %}<div class="nota">“{{ d.notas }}”</div>{% endif %}
+      </div>
+      {% if current_user.rol in [ROL_ADMIN, ROL_COCINA] and d.estado != 'listo' %}
+      <form method="post" action="{{ url_for('cocina.avanzar', detalle_id=d.id) }}">
+        <button class="btn btn-sm btn-outline-dark">
+          {{ 'Empezar' if d.estado == 'pendiente' else 'Listo' }}
+        </button>
+      </form>
+      {% elif d.estado == 'listo' %}
+      <i class="bi bi-check-circle-fill text-success"></i>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% if current_user.rol in [ROL_ADMIN, ROL_COCINA] and not t.todo_listo %}
+  <div class="p-2">
+    <form method="post" action="{{ url_for('cocina.marcar_pedido_listo', pedido_id=t.pedido.id) }}" class="d-grid">
+      <button class="btn btn-sm btn-tomate">Marcar pedido completo</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% else %}
+<div class="text-center text-muted py-5 w-100">
+  <i class="bi bi-emoji-smile fs-1"></i>
+  <p>No hay pedidos pendientes en cocina.</p>
+</div>
+{% endfor %}

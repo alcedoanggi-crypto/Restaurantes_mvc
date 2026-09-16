@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Mesa {{ mesa.numero }}{% endblock %}
+{% block heading %}Mesa {{ mesa.numero }} · Pedido #{{ pedido.id }}{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <!-- Menú -->
+  <div class="col-lg-8">
+    <ul class="nav nav-pills mb-3 flex-wrap gap-1" id="catTabs">
+      {% for c in categorias %}
+      <li class="nav-item">
+        <button class="nav-link {{ 'active' if loop.first }}" data-bs-toggle="pill" data-bs-target="#cat{{ c.id }}">{{ c.nombre }}</button>
+      </li>
+      {% endfor %}
+    </ul>
+    <div class="tab-content">
+      {% for c in categorias %}
+      <div class="tab-pane fade {{ 'show active' if loop.first }}" id="cat{{ c.id }}">
+        <div class="row g-2">
+          {% for p in c.platillos %}
+          <div class="col-6 col-md-4">
+            <form method="post" action="{{ url_for('pos.agregar_item', pedido_id=pedido.id) }}">
+              <input type="hidden" name="platillo_id" value="{{ p.id }}">
+              <button class="platillo-card w-100 border-0 p-0 text-start {{ 'agotado' if not p.disponible }}" {{ 'disabled' if not p.disponible }}>
+                <div class="img" style="background-image:url('{{ p.imagen }}')"></div>
+                <div class="body">
+                  <div class="fw-semibold small">{{ p.nombre }}</div>
+                  <div class="precio">{{ p.precio | money }}</div>
+                </div>
+              </button>
+            </form>
+          </div>
+          {% else %}
+          <p class="text-muted">Sin platillos en esta categoría.</p>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Comanda -->
+  <div class="col-lg-4">
+    <div class="card p-3 sticky-top" style="top:80px">
+      <h5 class="d-flex justify-content-between">Comanda <span class="badge-soft badge">{{ pedido.estado_label }}</span></h5>
+      <div class="list-group list-group-flush mb-2">
+        {% for d in pedido.detalles %}
+        <div class="list-group-item px-0 d-flex justify-content-between align-items-start">
+          <div>
+            <span class="fw-semibold">{{ d.cantidad }}×</span> {{ d.platillo.nombre }}
+            <div class="small text-muted">
+              {{ d.importe | money }}
+              <span class="badge text-bg-light">{{ d.estado_label }}</span>
+            </div>
+            {% if d.notas %}<div class="small text-tomate">“{{ d.notas }}”</div>{% endif %}
+          </div>
+          {% if d.estado == 'pendiente' %}
+          <form method="post" action="{{ url_for('pos.eliminar_item', detalle_id=d.id) }}">
+            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-x"></i></button>
+          </form>
+          {% endif %}
+        </div>
+        {% else %}
+        <p class="text-muted small mb-2">Aún no hay platillos. Toca un platillo para agregarlo.</p>
+        {% endfor %}
+      </div>
+
+      <div class="d-flex justify-content-between fs-5 fw-bold border-top pt-2">
+        <span>Subtotal</span><span>{{ pedido.subtotal | money }}</span>
+      </div>
+
+      <form method="post" action="{{ url_for('pos.actualizar_notas', pedido_id=pedido.id) }}" class="mt-2">
+        <textarea name="notas" class="form-control form-control-sm" rows="2" placeholder="Notas del pedido...">{{ pedido.notas or '' }}</textarea>
+        <button class="btn btn-sm btn-outline-secondary mt-1 w-100">Guardar notas</button>
+      </form>
+
+      <div class="d-grid gap-2 mt-3">
+        <a href="{{ url_for('cocina.index') }}" class="btn btn-naranja btn-pos"><i class="bi bi-fire"></i> Ver cocina</a>
+        {% if pedido.estado in ['listo', 'servido'] %}
+        <form method="post" action="{{ url_for('pos.servir', pedido_id=pedido.id) }}" class="d-grid">
+          <button class="btn btn-tomate btn-pos"><i class="bi bi-check2-all"></i> Marcar servido</button>
+        </form>
+        {% endif %}
+        {% if current_user.rol in [ROL_ADMIN, ROL_CAJERO] and pedido.detalles %}
+        <a href="{{ url_for('caja.cobrar', pedido_id=pedido.id) }}" class="btn btn-outline-dark btn-pos"><i class="bi bi-cash-coin"></i> Cobrar</a>
+        {% endif %}
+        {% if not pedido.detalles or pedido.detalles|selectattr('estado','equalto','pendiente')|list|length == pedido.detalles|length %}
+        <form method="post" action="{{ url_for('pos.cancelar', pedido_id=pedido.id) }}" onsubmit="return confirm('¿Cancelar el pedido?')" class="d-grid">
+          <button class="btn btn-sm btn-outline-danger">Cancelar pedido</button>
+        </form>
+        {% endif %}
+      </div>
+      <a href="{{ url_for('pos.index') }}" class="d-block text-center small mt-2">← Volver a mesas</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

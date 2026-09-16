@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.env
+*.db
+instance/
+.migrations_tmp/
+migrations/versions/*.pyc
+.DS_Store
+.idea/
+.vscode/

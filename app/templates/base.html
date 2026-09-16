@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Restaurante{% endblock %} · Gestión</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/theme.css') }}" rel="stylesheet">
+</head>
+<body>
+{% if current_user.is_authenticated %}
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><i class="bi bi-egg-fried"></i> La Sobremesa</div>
+    <nav class="nav flex-column">
+      {% set urol = current_user.rol %}
+      {% if urol in [ROL_ADMIN, ROL_CAJERO] %}
+        <a class="nav-link {{ 'active' if request.endpoint == 'dashboard.index' }}" href="{{ url_for('dashboard.index') }}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+      {% endif %}
+      {% if urol in [ROL_ADMIN, ROL_MESERO, ROL_CAJERO] %}
+        <a class="nav-link {{ 'active' if request.blueprint == 'pos' }}" href="{{ url_for('pos.index') }}"><i class="bi bi-grid-3x3-gap-fill"></i> Toma de pedidos</a>
+        <a class="nav-link {{ 'active' if request.blueprint == 'mesas' }}" href="{{ url_for('mesas.index') }}"><i class="bi bi-columns-gap"></i> Mesas</a>
+      {% endif %}
+      {% if urol in [ROL_ADMIN, ROL_COCINA, ROL_MESERO] %}
+        <a class="nav-link {{ 'active' if request.blueprint == 'cocina' }}" href="{{ url_for('cocina.index') }}"><i class="bi bi-fire"></i> Cocina (KDS)</a>
+      {% endif %}
+      {% if urol in [ROL_ADMIN, ROL_CAJERO] %}
+        <a class="nav-link {{ 'active' if request.blueprint == 'caja' }}" href="{{ url_for('caja.index') }}"><i class="bi bi-cash-coin"></i> Caja y facturación</a>
+      {% endif %}
+      {% if urol in [ROL_ADMIN, ROL_COCINA] %}
+        <a class="nav-link {{ 'active' if request.blueprint == 'menu' }}" href="{{ url_for('menu.index') }}"><i class="bi bi-journal-richtext"></i> Menú / Platillos</a>
+        <a class="nav-link {{ 'active' if request.blueprint == 'inventario' }}" href="{{ url_for('inventario.index') }}"><i class="bi bi-box-seam"></i> Inventario</a>
+      {% endif %}
+      {% if urol == ROL_ADMIN %}
+        <a class="nav-link {{ 'active' if request.blueprint == 'personal' }}" href="{{ url_for('personal.index') }}"><i class="bi bi-people-fill"></i> Personal y usuarios</a>
+      {% endif %}
+    </nav>
+    <div class="sidebar-foot">
+      <div>{{ now.year }} · La Sobremesa POS</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="btn btn-sm btn-light d-lg-none" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="bi bi-list"></i></button>
+      <div class="fw-semibold serif fs-5">{% block heading %}{% endblock %}</div>
+      <div class="d-flex align-items-center gap-3">
+        <span class="rol-badge">{{ current_user.rol_label }}</span>
+        <span class="d-none d-sm-inline fw-semibold">{{ current_user.nombre }}</span>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-outline-danger"><i class="bi bi-box-arrow-right"></i></a>
+      </div>
+    </header>
+
+    <main class="content">
+      {% include 'partials/_flash.html' %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% else %}
+  {% include 'partials/_flash.html' %}
+  {% block guest %}{% endblock %}
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

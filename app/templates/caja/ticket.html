@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Ticket {{ f.folio }}{% endblock %}
+{% block heading %}Ticket {{ f.folio }}{% endblock %}
+{% block content %}
+<div class="card p-4 mx-auto" style="max-width:360px">
+  <div class="text-center mb-3">
+    <h4 class="serif mb-0">La Sobremesa</h4>
+    <div class="small text-muted">Folio {{ f.folio }}</div>
+    <div class="small text-muted">{{ f.creado_en.strftime('%d/%m/%Y %H:%M') }}</div>
+    <div class="small">Mesa {{ f.pedido.mesa.numero }} · Cajero: {{ f.cajero.nombre }}</div>
+  </div>
+  <table class="table table-sm">
+    <tbody>
+    {% for d in f.pedido.detalles %}
+    <tr><td>{{ d.cantidad }}× {{ d.platillo.nombre }}</td><td class="text-end">{{ d.importe | money }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <div class="d-flex justify-content-between"><span>Subtotal</span><span>{{ f.subtotal | money }}</span></div>
+  <div class="d-flex justify-content-between"><span>IVA</span><span>{{ f.impuesto | money }}</span></div>
+  <div class="d-flex justify-content-between fs-5 fw-bold"><span>Total</span><span>{{ f.total | money }}</span></div>
+  <div class="d-flex justify-content-between small text-muted mt-2"><span>{{ f.metodo_pago | capitalize }}</span><span>Recibido {{ f.pago_recibido | money }}</span></div>
+  <div class="d-flex justify-content-between small text-muted"><span>Cambio</span><span>{{ f.cambio | money }}</span></div>
+  <p class="text-center small mt-3 mb-0">¡Gracias por su visita!</p>
+</div>
+<div class="text-center mt-3">
+  <button onclick="window.print()" class="btn btn-outline-dark btn-sm"><i class="bi bi-printer"></i> Imprimir</button>
+  <a href="{{ url_for('caja.index') }}" class="btn btn-tomate btn-sm">Volver a caja</a>
+</div>
+{% endblock %}
